@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-gateway"
+version = "0.1.0"
+description = "LLM inference gateway: semantic cache, budgets, rate limiting, failover"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "httpx>=0.27",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "asyncpg>=0.29",
+    "pgvector>=0.2.5",
+    "redis>=5.0",
+    "celery>=5.3",
+    "sentence-transformers>=2.5",
+    "prometheus-client>=0.20",
+    "structlog>=24.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.3",
+    "matplotlib>=3.8",     # bench/ plots only
+    "numpy>=1.26",
+]
+
+# WITHOUT this, `pip install -e .` fails with "Multiple top-level packages
+# discovered in a flat-layout: app, bench, tests, migrations". setuptools
+# auto-discovery refuses to guess, and the Dockerfile build dies at that line.
+# `bench`, `tests` and `migrations` are scripts and fixtures, not library code,
+# so they are deliberately not installed.
+[tool.setuptools]
+packages = ["app", "app.providers", "app.cache"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
